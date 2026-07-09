@@ -119,6 +119,7 @@ const I18N = {
     scorePrefix: "Skor: ",
     scoreSending: "Skor liderlik tablosuna gönderiliyor…",
     scoreSent: "Skor gönderildi.",
+    scoreNameTaken: "Bu isim başka biri tarafından kullanılıyor. Farklı bir isimle tekrar dene.",
     defaultPlayerName: "Oyuncu",
     leaderboardLoading: "Yükleniyor…",
     leaderboardUnavailable: "Liderlik tablosu şu an kullanılamıyor.",
@@ -161,6 +162,7 @@ const I18N = {
     scorePrefix: "Score: ",
     scoreSending: "Sending score to the leaderboard…",
     scoreSent: "Score submitted.",
+    scoreNameTaken: "This name is already taken by someone else. Try a different name.",
     defaultPlayerName: "Player",
     leaderboardLoading: "Loading…",
     leaderboardUnavailable: "The leaderboard is currently unavailable.",
@@ -203,6 +205,7 @@ const I18N = {
     scorePrefix: "النتيجة: ",
     scoreSending: "جارٍ إرسال النتيجة إلى لوحة المتصدرين…",
     scoreSent: "تم إرسال النتيجة.",
+    scoreNameTaken: "هذا الاسم مستخدم بالفعل من قبل شخص آخر. جرّب اسمًا مختلفًا.",
     defaultPlayerName: "لاعب",
     leaderboardLoading: "جارٍ التحميل…",
     leaderboardUnavailable: "لوحة المتصدرين غير متاحة حاليًا.",
@@ -245,6 +248,7 @@ const I18N = {
     scorePrefix: "分数：",
     scoreSending: "正在提交分数到排行榜…",
     scoreSent: "分数已提交。",
+    scoreNameTaken: "这个名字已被别人使用，换个名字试试吧。",
     defaultPlayerName: "玩家",
     leaderboardLoading: "加载中…",
     leaderboardUnavailable: "排行榜目前不可用。",
@@ -287,6 +291,7 @@ const I18N = {
     scorePrefix: "Score : ",
     scoreSending: "Envoi du score au classement…",
     scoreSent: "Score envoyé.",
+    scoreNameTaken: "Ce nom est déjà pris par quelqu'un d'autre. Essaie un autre nom.",
     defaultPlayerName: "Joueur",
     leaderboardLoading: "Chargement…",
     leaderboardUnavailable: "Le classement est actuellement indisponible.",
@@ -426,6 +431,9 @@ function applyLanguage(lang) {
 }
 
 // ---- Liderlik tablosu (Firestore) ----
+// Her isim "players" koleksiyonunda tek bir belge: aynı isim başka biri tarafından
+// alınamasın diye bu cihaza özel rastgele bir "ownerToken" ile eşleştirilir ve bu
+// eşleşme Firestore güvenlik kurallarında da doğrulanır (bkz. README).
 let db = null;
 try {
   firebase.initializeApp(FIREBASE_CONFIG);
@@ -434,11 +442,41 @@ try {
   console.warn("Liderlik tablosu kullanılamıyor:", err);
 }
 
-function submitScore(name, meters, coins) {
-  if (!db) return;
-  db.collection("scores")
-    .add({ name, score: meters, coins, ts: Date.now() })
-    .catch((err) => console.warn("Skor gönderilemedi:", err));
+const OWNER_TOKEN_KEY = "irOwnerToken";
+function getOwnerToken() {
+  let token = localStorage.getItem(OWNER_TOKEN_KEY);
+  if (!token) {
+    token = (crypto.randomUUID && crypto.randomUUID()) || Date.now().toString(36) + Math.random().toString(36).slice(2);
+    localStorage.setItem(OWNER_TOKEN_KEY, token);
+  }
+  return token;
+}
+const ownerToken = getOwnerToken();
+
+function normalizeName(name) {
+  return name.trim().toLowerCase().replace(/[/.]/g, "").slice(0, 20) || "oyuncu";
+}
+
+function submitScore(name, meters) {
+  if (!db) return Promise.resolve("");
+  const ref = db.collection("players").doc(normalizeName(name));
+  return ref
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return ref.set({ ownerToken, displayName: name, bestScore: meters, updatedAt: Date.now() }).then(() => "scoreSent");
+      }
+      const data = doc.data();
+      if (data.ownerToken !== ownerToken) return "scoreNameTaken";
+      if (meters > (data.bestScore || 0)) {
+        return ref.set({ ownerToken, displayName: name, bestScore: meters, updatedAt: Date.now() }).then(() => "scoreSent");
+      }
+      return "scoreSent";
+    })
+    .catch((err) => {
+      console.warn("Skor gönderilemedi:", err);
+      return "";
+    });
 }
 
 function loadLeaderboard() {
@@ -447,26 +485,20 @@ function loadLeaderboard() {
     leaderboardList.innerHTML = `<li class="leaderboard-status">${t("leaderboardUnavailable")}</li>`;
     return;
   }
-  db.collection("scores")
-    .orderBy("score", "desc")
-    .limit(50)
+  db.collection("players")
+    .orderBy("bestScore", "desc")
+    .limit(10)
     .get()
     .then((snapshot) => {
-      const bestPerName = new Map();
-      snapshot.forEach((doc) => {
-        const d = doc.data();
-        const prev = bestPerName.get(d.name);
-        if (!prev || d.score > prev.score) bestPerName.set(d.name, d);
-      });
-      const top = Array.from(bestPerName.values())
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
-      if (top.length === 0) {
+      if (snapshot.empty) {
         leaderboardList.innerHTML = `<li class="leaderboard-status">${t("leaderboardEmpty")}</li>`;
         return;
       }
-      leaderboardList.innerHTML = top
-        .map((d) => `<li><span>${escapeHtml(d.name)}</span><span>${d.score} m</span></li>`)
+      leaderboardList.innerHTML = snapshot.docs
+        .map((doc) => {
+          const d = doc.data();
+          return `<li><span>${escapeHtml(d.displayName)}</span><span>${d.bestScore} m</span></li>`;
+        })
         .join("");
     })
     .catch((err) => {
@@ -1314,10 +1346,11 @@ function endGame() {
   finalBestEl.textContent = t("bestPrefix") + best + " m";
   scoreStatusEl.textContent = db ? t("scoreSending") : "";
   gameoverScreen.classList.remove("hidden");
-  submitScore(currentPlayerName(), meters, coinCount);
+  submitScore(currentPlayerName(), meters).then((statusKey) => {
+    scoreStatusEl.textContent = statusKey ? t(statusKey) : "";
+  });
   profile.totalCoins += coinCount;
   saveProfile();
-  if (db) setTimeout(() => (scoreStatusEl.textContent = t("scoreSent")), 800);
 }
 
 function currentPlayerName() {
