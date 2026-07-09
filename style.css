@@ -1,0 +1,284 @@
+:root {
+  --bg: #0f1420;
+  --panel: #171d2e;
+  --text-1: #f1f3f9;
+  --text-2: #a9b1c6;
+  --accent: #ff8a3d;
+  --accent-2: #35d0ba;
+  --danger: #ff5d5d;
+  --border: #2a3348;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  padding: 24px;
+}
+
+#game-wrap {
+  width: 100%;
+  max-width: 840px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 4px;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  margin: 0 0 16px;
+  color: var(--text-2);
+  font-size: 0.95rem;
+}
+
+#canvas-holder {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  line-height: 0;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #1c2438;
+  touch-action: none;
+}
+
+#hud {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-1);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  pointer-events: none;
+  line-height: normal;
+}
+
+.hud-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#power-indicator {
+  color: var(--accent-2);
+  font-size: 0.95rem;
+}
+
+.icon-btn {
+  pointer-events: auto;
+  background: rgba(11, 15, 25, 0.6);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rules {
+  text-align: start;
+  color: var(--text-2);
+  max-width: 420px;
+  margin: 0;
+  padding-inline-start: 22px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.lang-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-select {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #0b0f19;
+  color: var(--text-1);
+  font-size: 0.85rem;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 20, 32, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* "safe center": ortalar ama sığmayınca üstten kırpmak yerine yukarı hizalar
+     (taşan içerik başlıkla üst üste binmesin diye) */
+  justify-content: safe center;
+  gap: 10px;
+  padding: 20px 24px;
+  text-align: center;
+  overflow-y: auto;
+  /* #canvas-holder'daki line-height:0 buraya miras kalıp yazıların üst üste
+     binmesine sebep oluyordu — burada normale döndürülüyor */
+  line-height: normal;
+}
+
+.overlay > * {
+  flex-shrink: 0;
+}
+
+.overlay.hidden { display: none; }
+.hidden { display: none !important; }
+
+.overlay h2 { margin: 0; }
+.overlay p { margin: 0; color: var(--text-2); max-width: 480px; }
+
+button {
+  background: var(--accent);
+  color: #1a1200;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+button:hover { filter: brightness(1.08); }
+button:active { transform: scale(0.97); }
+
+button.secondary {
+  background: transparent;
+  color: var(--text-1);
+  border: 1px solid var(--border);
+}
+
+.menu-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#player-name {
+  width: 100%;
+  max-width: 260px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #0b0f19;
+  color: var(--text-1);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+#player-name:focus {
+  outline: 2px solid var(--accent);
+}
+
+.leaderboard-list {
+  width: 100%;
+  max-width: 360px;
+  text-align: start;
+  margin: 0;
+  padding-inline-start: 28px;
+  padding-inline-end: 8px;
+  color: var(--text-1);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.leaderboard-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.leaderboard-status {
+  list-style: none;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.score-status {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.final-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 16px;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.coin-total {
+  color: var(--accent) !important;
+  font-weight: 700;
+}
+
+.customize-row {
+  width: 100%;
+  max-width: 420px;
+  text-align: start;
+}
+
+.customize-label {
+  display: block;
+  color: var(--text-2);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.customize-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.customize-options button {
+  padding: 7px 12px;
+  font-size: 0.85rem;
+  background: #0b0f19;
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.customize-options button.equipped {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #1a1200;
+}
+
+.customize-options button.locked {
+  opacity: 0.7;
+}
+
