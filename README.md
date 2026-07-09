@@ -1,6 +1,8 @@
 # Infinite Runner
 
-Tarayıcıda çalışan bir koşu/parkur oyunu. Karakter kendi kendine ileri koşar, boşluk tuşuyla zıplayıp dikenlerden ve lav çukurlarından kaçarsın. `index.html`'i çift tıklayıp açman yeterli.
+🎮 **Oyna:** https://armin1142.github.io/infinite-runner/
+
+Tarayıcıda çalışan bir koşu/parkur oyunu. Karakter kendi kendine ileri koşar, boşluk tuşuyla zıplayıp dikenlerden ve lav çukurlarından kaçarsın (mobilde ekrana dokun). `index.html`'i çift tıklayıp açman da yeterli.
 
 ## Nasıl oynanır
 
