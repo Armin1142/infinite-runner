@@ -4,6 +4,7 @@ const FALL_MAX_SPEED = 8.5;  // düşerken ulaşabileceği en yüksek hız (sert
 const JUMP_V = 13;           // normal zıplama hızı
 const BOOST_MULT = 1.2;      // güç modundaki zıplama çarpanı (tavana değmesin diye sınırlı)
 const BOOST_DURATION = 5000; // güç modu süresi (ms)
+const INVINCIBLE_DURATION = 5000; // canavar tokeni ile ölümsüzlük süresi (ms)
 const PLAYER_SIZE = 36;
 const PLAYER_X = 90;
 const BASE_SPEED = 1.8;
@@ -101,6 +102,7 @@ const I18N = {
     rule3: "🪙 altın coinleri topla, puan kazan",
     rule4: "💜 mor coin: birkaç saniye daha yüksek zıplarsın",
     rule5: "🔵 mavi helikopter tokenı: bir süreliğine helikoptere dönüşürsün, yükselmek için boşluğu <b>basılı tut</b>",
+    rule6: "👹 canavar tokenı: 5 saniyeliğine ölümsüz olursun, hiçbir engelden zarar görmezsin",
     namePlaceholder: "İsmin (liderlik tablosu için)",
     startBtn: "▶ Başla",
     customizeBtn: "🎨 Karakter",
@@ -116,6 +118,7 @@ const I18N = {
     muteTitle: "Sesi aç/kapat",
     bestPrefix: "En iyi: ",
     powerIndicator: "🚀 Güç modu!",
+    invincibleIndicator: "👹 Ölümsüzsün!",
     scorePrefix: "Skor: ",
     scoreSending: "Skor liderlik tablosuna gönderiliyor…",
     scoreSent: "Skor gönderildi.",
@@ -144,6 +147,7 @@ const I18N = {
     rule3: "🪙 Collect gold coins to earn points",
     rule4: "💜 Purple coin: jump higher for a few seconds",
     rule5: "🔵 Blue helicopter token: turns you into a helicopter for a while — <b>hold space</b> to rise",
+    rule6: "👹 Monster token: makes you invincible for 5 seconds — nothing can hurt you",
     namePlaceholder: "Your name (for the leaderboard)",
     startBtn: "▶ Start",
     customizeBtn: "🎨 Character",
@@ -159,6 +163,7 @@ const I18N = {
     muteTitle: "Toggle sound",
     bestPrefix: "Best: ",
     powerIndicator: "🚀 Power mode!",
+    invincibleIndicator: "👹 You're invincible!",
     scorePrefix: "Score: ",
     scoreSending: "Sending score to the leaderboard…",
     scoreSent: "Score submitted.",
@@ -187,6 +192,7 @@ const I18N = {
     rule3: "🪙 اجمع العملات الذهبية لكسب النقاط",
     rule4: "💜 عملة بنفسجية: تقفز أعلى لبضع ثوانٍ",
     rule5: "🔵 رمز الهليكوبتر الأزرق: تتحول إلى هليكوبتر لفترة — <b>اضغط مع الاستمرار على المسافة</b> للصعود",
+    rule6: "👹 رمز الوحش: يجعلك لا تُقهر لمدة 5 ثوانٍ — لا شيء يمكن أن يؤذيك",
     namePlaceholder: "اسمك (للوحة المتصدرين)",
     startBtn: "▶ ابدأ",
     customizeBtn: "🎨 الشخصية",
@@ -202,6 +208,7 @@ const I18N = {
     muteTitle: "تشغيل/كتم الصوت",
     bestPrefix: "الأفضل: ",
     powerIndicator: "🚀 وضع القوة!",
+    invincibleIndicator: "👹 أنت لا تُقهر!",
     scorePrefix: "النتيجة: ",
     scoreSending: "جارٍ إرسال النتيجة إلى لوحة المتصدرين…",
     scoreSent: "تم إرسال النتيجة.",
@@ -230,6 +237,7 @@ const I18N = {
     rule3: "🪙 收集金币来获得分数",
     rule4: "💜 紫色金币：接下来几秒跳得更高",
     rule5: "🔵 蓝色直升机代币：短时间内变身直升机——<b>按住空格键</b>上升",
+    rule6: "👹 怪物代币：让你在5秒内无敌——没有任何东西能伤害你",
     namePlaceholder: "你的名字（用于排行榜）",
     startBtn: "▶ 开始",
     customizeBtn: "🎨 角色",
@@ -245,6 +253,7 @@ const I18N = {
     muteTitle: "开启/关闭声音",
     bestPrefix: "最佳：",
     powerIndicator: "🚀 强化模式！",
+    invincibleIndicator: "👹 无敌状态！",
     scorePrefix: "分数：",
     scoreSending: "正在提交分数到排行榜…",
     scoreSent: "分数已提交。",
@@ -273,6 +282,7 @@ const I18N = {
     rule3: "🪙 Ramasse des pièces d'or pour marquer des points",
     rule4: "💜 Pièce violette : tu sautes plus haut pendant quelques secondes",
     rule5: "🔵 Jeton hélicoptère bleu : tu te transformes en hélicoptère pendant un moment — <b>maintiens espace</b> pour monter",
+    rule6: "👹 Jeton monstre : te rend invincible pendant 5 secondes — rien ne peut te blesser",
     namePlaceholder: "Ton nom (pour le classement)",
     startBtn: "▶ Démarrer",
     customizeBtn: "🎨 Personnage",
@@ -288,6 +298,7 @@ const I18N = {
     muteTitle: "Activer/couper le son",
     bestPrefix: "Meilleur : ",
     powerIndicator: "🚀 Mode puissance !",
+    invincibleIndicator: "👹 Tu es invincible !",
     scorePrefix: "Score : ",
     scoreSending: "Envoi du score au classement…",
     scoreSent: "Score envoyé.",
@@ -320,6 +331,7 @@ const scoreEl = document.getElementById("score");
 const coinsEl = document.getElementById("coins");
 const bestEl = document.getElementById("best");
 const powerIndicator = document.getElementById("power-indicator");
+const invincibleIndicator = document.getElementById("invincible-indicator");
 const startScreen = document.getElementById("start-screen");
 const gameoverScreen = document.getElementById("gameover-screen");
 const startBtn = document.getElementById("start-btn");
@@ -572,6 +584,11 @@ function sfxHeli() {
   tone(440, 0.12, "sawtooth", 0.14);
   tone(660, 0.16, "sawtooth", 0.14, 0.1);
 }
+function sfxMonster() {
+  tone(160, 0.14, "sawtooth", 0.18);
+  tone(90, 0.2, "sawtooth", 0.16, 0.08);
+  tone(220, 0.12, "square", 0.14, 0.22);
+}
 function sfxHit() {
   if (!audioCtx) return;
   const t0 = audioCtx.currentTime;
@@ -593,6 +610,7 @@ let distanceSinceObstacle, distanceSinceCoin, distanceSincePipe;
 let coinCount = 0;
 let boostUntil = 0;
 let heliUntil = 0;
+let invincibleUntil = 0;
 let scrollX = 0; // arkaplan/dekor kayma miktarı (her karede hıza göre birikir, ışınlanma yapmaz)
 let spaceHeld = false;
 
@@ -617,6 +635,7 @@ function resetState() {
   coinCount = 0;
   boostUntil = 0;
   heliUntil = 0;
+  invincibleUntil = 0;
   scrollX = 0;
   distanceSinceObstacle = nextObstacleDistance();
   distanceSinceCoin = nextCoinDistance();
@@ -625,6 +644,10 @@ function resetState() {
 
 function isBoosted() {
   return performance.now() < boostUntil;
+}
+
+function isInvincible() {
+  return performance.now() < invincibleUntil;
 }
 
 function jump() {
@@ -665,7 +688,7 @@ function spawnObstacle() {
   }
 }
 function nextObstacleDistance() {
-  return 70 + Math.random() * 100;
+  return 54 + Math.random() * 77; // öncekinden ~%30 daha sık (70-170 -> 54-131)
 }
 
 // ---- Helikopter borular ----
@@ -680,15 +703,19 @@ function spawnPipe() {
   });
 }
 function nextPipeDistance() {
-  return 90 + Math.random() * 70; // daha seyrek, daha çok tepki süresi
+  return 69 + Math.random() * 54; // öncekinden ~%30 daha sık
 }
 
 // ---- Coinler ----
 function spawnCoins() {
   if (player.mode === "heli") {
-    const isPower = Math.random() < 0.15;
     const y = CEILING_Y + 30 + Math.random() * (GROUND_Y - CEILING_Y - 60);
-    if (isPower) {
+    const roll = Math.random();
+    if (roll < 0.08) {
+      coins.push({ x: W + 20, y, type: "monster", taken: false });
+      return;
+    }
+    if (roll < 0.23) {
       coins.push({ x: W + 20, y, type: "power", taken: false });
       return;
     }
@@ -703,7 +730,11 @@ function spawnCoins() {
     coins.push({ x: W + 20, y: GROUND_Y - 130, type: "heli", taken: false });
     return;
   }
-  if (roll < 0.2) {
+  if (roll < 0.16) {
+    coins.push({ x: W + 20, y: GROUND_Y - 110, type: "monster", taken: false });
+    return;
+  }
+  if (roll < 0.28) {
     coins.push({ x: W + 20, y: GROUND_Y - 150, type: "power", taken: false });
     return;
   }
@@ -806,8 +837,8 @@ function update(time) {
   const pTop = player.mode === "heli" ? player.y - 20 : player.y - 56;
   const pBottom = player.mode === "heli" ? player.y + 10 : player.y;
 
-  // engel/boru çarpışması (dönüşüm sırasında kısa süreli dokunulmazlık)
-  if (!player.transitioning) {
+  // engel/boru çarpışması (dönüşüm sırasında veya canavar tokeni ile kısa süreli dokunulmazlık)
+  if (!player.transitioning && !isInvincible()) {
     for (const o of obstacles) {
       const overlapX = pRight > o.x && pLeft < o.x + o.width;
       if (!overlapX) continue;
@@ -851,6 +882,10 @@ function update(time) {
         }
         addParticle(c.x, c.y, "🚁", "#8ad4ff");
         sfxHeli();
+      } else if (c.type === "monster") {
+        invincibleUntil = performance.now() + INVINCIBLE_DURATION;
+        addParticle(c.x, c.y, "👹", "#ffb066");
+        sfxMonster();
       } else {
         coinCount++;
         addParticle(c.x, c.y, "+1", "#ffd35c");
@@ -988,6 +1023,11 @@ function draw(time) {
       coinGrad.addColorStop(1, "#2f8fdb");
       ctx.shadowColor = "#8ad4ff";
       ctx.shadowBlur = 14;
+    } else if (c.type === "monster") {
+      coinGrad.addColorStop(0, "#ffcf8a");
+      coinGrad.addColorStop(1, "#b5451d");
+      ctx.shadowColor = "#ff8a3d";
+      ctx.shadowBlur = 14;
     } else {
       coinGrad.addColorStop(0, "#fff3c4");
       coinGrad.addColorStop(1, "#e0a721");
@@ -1006,6 +1046,20 @@ function draw(time) {
       ctx.lineTo(7, 0);
       ctx.moveTo(0, -7);
       ctx.lineTo(0, 7);
+      ctx.stroke();
+    } else if (c.type === "monster") {
+      ctx.fillStyle = "#1a0f00";
+      ctx.beginPath();
+      ctx.arc(-3, -2, 1.6, 0, Math.PI * 2);
+      ctx.arc(3, -2, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#1a0f00";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-4, 3);
+      ctx.lineTo(-1, 5);
+      ctx.lineTo(1, 3);
+      ctx.lineTo(4, 5);
       ctx.stroke();
     }
     ctx.restore();
@@ -1087,8 +1141,17 @@ function drawBiomeDecor(biome, time) {
 }
 
 function drawPlayer(time) {
+  const invincible = isInvincible();
+  ctx.save();
+  if (invincible) {
+    const glow = Math.sin(time * 0.02) * 0.5 + 0.5;
+    ctx.shadowColor = "#ffe08a";
+    ctx.shadowBlur = 12 + glow * 14;
+  }
+
   if (player.mode === "heli") {
     drawHeli(time);
+    ctx.restore();
     return;
   }
 
@@ -1108,8 +1171,14 @@ function drawPlayer(time) {
 
   const boosted = isBoosted();
   const colorDef = COLORS.find((c) => c.id === profile.equipped.color) || COLORS[0];
+  const monsterFlash = invincible ? Math.sin(time * 0.025) * 0.5 + 0.5 : 0;
+  const monsterTop = lerpColor("#fff3c4", "#ff8a3d", monsterFlash);
+  const monsterBottom = lerpColor("#ffd35c", "#ff5d5d", monsterFlash);
   const bodyGrad = ctx.createLinearGradient(bodyX, bodyY, bodyX, bodyY + bodyH);
-  if (boosted) {
+  if (invincible) {
+    bodyGrad.addColorStop(0, monsterTop);
+    bodyGrad.addColorStop(1, monsterBottom);
+  } else if (boosted) {
     bodyGrad.addColorStop(0, "#e6ccff");
     bodyGrad.addColorStop(1, "#8b3fe0");
   } else {
@@ -1122,7 +1191,7 @@ function drawPlayer(time) {
   roundRect(ctx, bodyX, bodyY, bodyW, bodyH, 9);
   ctx.fill();
 
-  const legColor = boosted ? "#8b3fe0" : colorDef.bottom;
+  const legColor = invincible ? monsterBottom : boosted ? "#8b3fe0" : colorDef.bottom;
   // koşu temposu: gerçek bir insan adımı gibi, hız arttıkça çok da çılgınlaşmasın
   const runOmega = 0.011 * Math.sqrt(speed / BASE_SPEED);
 
@@ -1195,7 +1264,7 @@ function drawPlayer(time) {
   // kafa
   const headCx = bodyX + bodyW * 0.55;
   const headCy = bodyY - 9;
-  ctx.fillStyle = boosted ? "#c48bff" : colorDef.top;
+  ctx.fillStyle = invincible ? monsterTop : boosted ? "#c48bff" : colorDef.top;
   ctx.beginPath();
   ctx.arc(headCx, headCy, 13, 0, Math.PI * 2);
   ctx.fill();
@@ -1225,6 +1294,7 @@ function drawPlayer(time) {
   ctx.stroke();
 
   drawAccessories(headCx, headCy);
+  ctx.restore();
 }
 
 function drawAccessories(headCx, headCy) {
@@ -1330,6 +1400,7 @@ function loop(time) {
   scoreEl.textContent = Math.floor(distance) + " m";
   coinsEl.textContent = "🪙 " + coinCount;
   powerIndicator.classList.toggle("hidden", !isBoosted());
+  invincibleIndicator.classList.toggle("hidden", !isInvincible());
 
   requestAnimationFrame(loop);
 }
