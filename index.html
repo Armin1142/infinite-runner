@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infinite Runner</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-wrap">
+    <h1>Infinite Runner</h1>
+    <p class="subtitle" data-i18n="subtitle">Karakter kendi kendine koşar. Zıplamak için boşluk tuşuna bas.</p>
+
+    <div id="canvas-holder">
+      <canvas id="game" width="800" height="400"></canvas>
+
+      <div id="hud">
+        <div class="hud-group">
+          <span id="score">0 m</span>
+          <span id="coins">🪙 0</span>
+          <span id="power-indicator" class="hidden" data-i18n="powerIndicator">🚀 Güç modu!</span>
+        </div>
+        <div class="hud-group">
+          <span id="best">En iyi: 0 m</span>
+          <button id="mute-btn" class="icon-btn" data-i18n-title="muteTitle" title="Sesi aç/kapat">🔊</button>
+        </div>
+      </div>
+
+      <!-- Ana menü -->
+      <div id="start-screen" class="overlay">
+        <h2>Infinite Runner</h2>
+        <div class="lang-row">
+          <span class="lang-label">🌐</span>
+          <select id="lang-select" class="lang-select">
+            <option value="tr">Türkçe</option>
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
+            <option value="zh">中文</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
+        <ul class="rules">
+          <li data-i18n="rule1">Zıplamak için <b>boşluk</b> tuşuna bas</li>
+          <li data-i18n="rule2">Dikenler ve lav çukurlarından atlayarak kaç</li>
+          <li data-i18n="rule3">🪙 altın coinleri topla, puan kazan</li>
+          <li data-i18n="rule4">💜 mor coin: birkaç saniye daha yüksek zıplarsın</li>
+          <li data-i18n="rule5">🔵 mavi helikopter tokenı: bir süreliğine helikoptere dönüşürsün, yükselmek için boşluğu <b>basılı tut</b></li>
+        </ul>
+        <input id="player-name" type="text" maxlength="16" data-i18n-placeholder="namePlaceholder" placeholder="İsmin (liderlik tablosu için)">
+        <div class="menu-buttons">
+          <button id="start-btn" data-i18n="startBtn">▶ Başla</button>
+          <button id="customize-btn" class="secondary" data-i18n="customizeBtn">🎨 Karakter</button>
+          <button id="leaderboard-btn" class="secondary" data-i18n="leaderboardHeading">🏆 Liderlik Tablosu</button>
+        </div>
+      </div>
+
+      <!-- Karakter özelleştirme -->
+      <div id="customize-screen" class="overlay hidden">
+        <h2 data-i18n="customizeHeading">🎨 Karakteri Özelleştir</h2>
+        <p class="coin-total"><span data-i18n="coinTotalPrefix">🪙 Toplam: </span><span id="total-coins">0</span></p>
+        <div class="customize-row">
+          <span class="customize-label" data-i18n="colorLabel">Renk</span>
+          <div id="color-options" class="customize-options"></div>
+        </div>
+        <div class="customize-row">
+          <span class="customize-label" data-i18n="hatLabel">Şapka</span>
+          <div id="hat-options" class="customize-options"></div>
+        </div>
+        <div class="customize-row">
+          <span class="customize-label" data-i18n="glassesLabel">Gözlük</span>
+          <div id="glasses-options" class="customize-options"></div>
+        </div>
+        <button id="customize-close-btn" data-i18n="closeBtn">Kapat</button>
+      </div>
+
+      <!-- Liderlik tablosu -->
+      <div id="leaderboard-screen" class="overlay hidden">
+        <h2 data-i18n="leaderboardHeading">🏆 Liderlik Tablosu</h2>
+        <ol id="leaderboard-list" class="leaderboard-list">
+          <li class="leaderboard-status" data-i18n="leaderboardLoading">Yükleniyor…</li>
+        </ol>
+        <button id="leaderboard-close-btn" data-i18n="closeBtn">Kapat</button>
+      </div>
+
+      <!-- Oyun bitti ekranı -->
+      <div id="gameover-screen" class="overlay hidden">
+        <h2 data-i18n="gameoverHeading">Oyun bitti!</h2>
+        <div id="final-score" class="final-stats">
+          <span id="final-distance"></span>
+          <span id="final-coins"></span>
+          <span id="final-best"></span>
+        </div>
+        <p id="score-status" class="score-status"></p>
+        <div class="menu-buttons">
+          <button id="retry-btn" data-i18n="retryBtn">🔁 Tekrar oyna</button>
+          <button id="gameover-leaderboard-btn" class="secondary" data-i18n="leaderboardHeading">🏆 Liderlik Tablosu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
