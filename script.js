@@ -613,6 +613,7 @@ let heliUntil = 0;
 let invincibleUntil = 0;
 let scrollX = 0; // arkaplan/dekor kayma miktarı (her karede hıza göre birikir, ışınlanma yapmaz)
 let spaceHeld = false;
+let eggMode = false; // gizli easter egg: bu isimle oynayan hep ölümsüz olur
 
 function resetState() {
   player = {
@@ -640,6 +641,12 @@ function resetState() {
   distanceSinceObstacle = nextObstacleDistance();
   distanceSinceCoin = nextCoinDistance();
   distanceSincePipe = nextPipeDistance();
+
+  eggMode = playerNameInput.value.trim().toLowerCase() === "armin1142";
+  if (eggMode) {
+    addParticle(PLAYER_X + 15, GROUND_Y - 60, "👑", "#ffd35c");
+    sfxMonster();
+  }
 }
 
 function isBoosted() {
@@ -837,8 +844,8 @@ function update(time) {
   const pTop = player.mode === "heli" ? player.y - 20 : player.y - 56;
   const pBottom = player.mode === "heli" ? player.y + 10 : player.y;
 
-  // engel/boru çarpışması (dönüşüm sırasında veya canavar tokeni ile kısa süreli dokunulmazlık)
-  if (!player.transitioning && !isInvincible()) {
+  // engel/boru çarpışması (dönüşüm sırasında, canavar tokeni veya gizli easter egg ile dokunulmazlık)
+  if (!player.transitioning && !isInvincible() && !eggMode) {
     for (const o of obstacles) {
       const overlapX = pRight > o.x && pLeft < o.x + o.width;
       if (!overlapX) continue;
@@ -1141,7 +1148,7 @@ function drawBiomeDecor(biome, time) {
 }
 
 function drawPlayer(time) {
-  const invincible = isInvincible();
+  const invincible = isInvincible() || eggMode;
   ctx.save();
   if (invincible) {
     const glow = Math.sin(time * 0.02) * 0.5 + 0.5;
@@ -1400,7 +1407,7 @@ function loop(time) {
   scoreEl.textContent = Math.floor(distance) + " m";
   coinsEl.textContent = "🪙 " + coinCount;
   powerIndicator.classList.toggle("hidden", !isBoosted());
-  invincibleIndicator.classList.toggle("hidden", !isInvincible());
+  invincibleIndicator.classList.toggle("hidden", !isInvincible() && !eggMode);
 
   requestAnimationFrame(loop);
 }
